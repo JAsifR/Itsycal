@@ -277,10 +277,22 @@
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        Method original = class_getInstanceMethod(self, @selector(statusItemClicked:));
-        Method replacement = class_getInstanceMethod(self, @selector(settingsOnly_statusItemClicked:));
-        if (original && replacement) {
-            method_exchangeImplementations(original, replacement);
+        Method clickOriginal = class_getInstanceMethod(self, @selector(statusItemClicked:));
+        Method clickReplacement = class_getInstanceMethod(self, @selector(settingsOnly_statusItemClicked:));
+        if (clickOriginal && clickReplacement) {
+            method_exchangeImplementations(clickOriginal, clickReplacement);
+        }
+
+        Method iconOriginal = class_getInstanceMethod(self, NSSelectorFromString(@"iconImageForText:"));
+        Method iconReplacement = class_getInstanceMethod(self, @selector(settingsOnly_iconImageForText:));
+        if (iconOriginal && iconReplacement) {
+            method_exchangeImplementations(iconOriginal, iconReplacement);
+        }
+
+        Method updateOriginal = class_getInstanceMethod(self, NSSelectorFromString(@"updateMenubarIcon"));
+        Method updateReplacement = class_getInstanceMethod(self, @selector(settingsOnly_updateMenubarIcon));
+        if (updateOriginal && updateReplacement) {
+            method_exchangeImplementations(updateOriginal, updateReplacement);
         }
     });
 }
@@ -303,6 +315,61 @@
         [self performSelector:showPrefs withObject:sender];
 #pragma clang diagnostic pop
     }
+}
+
+- (void)settingsOnly_updateMenubarIcon
+{
+    [self settingsOnly_updateMenubarIcon];
+    [self settingsOnly_applyLargerMenuBarFont];
+}
+
+- (void)settingsOnly_applyLargerMenuBarFont
+{
+    Ivar statusItemIvar = class_getInstanceVariable([self class], "_statusItem");
+    if (!statusItemIvar) return;
+
+    NSStatusItem *statusItem = object_getIvar(self, statusItemIvar);
+    NSStatusBarButton *button = statusItem.button;
+    if (!button) return;
+
+    NSFont *currentFont = button.font ?: [NSFont menuBarFontOfSize:0];
+    CGFloat largerSize = MAX(currentFont.pointSize + 2.0, 15.0);
+    NSFont *largerFont = [NSFont systemFontOfSize:largerSize weight:NSFontWeightRegular];
+    button.font = largerFont;
+
+    if (button.attributedTitle.length > 0) {
+        NSMutableAttributedString *title = [button.attributedTitle mutableCopy];
+        [title addAttribute:NSFontAttributeName value:largerFont range:NSMakeRange(0, title.length)];
+        button.attributedTitle = title;
+    }
+
+    SEL adjustWidth = NSSelectorFromString(@"adjustStatusItemWidthIfNecessary");
+    if ([self respondsToSelector:adjustWidth]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [self performSelector:adjustWidth withObject:nil];
+#pragma clang diagnostic pop
+    }
+}
+
+- (NSImage *)settingsOnly_iconImageForText:(NSString *)text
+{
+    NSImage *original = [self settingsOnly_iconImageForText:text];
+    if (!original) return nil;
+
+    NSSize originalSize = original.size;
+    NSSize largerSize = NSMakeSize(originalSize.width + 4.0, originalSize.height + 2.0);
+    NSImage *largerImage = [[NSImage alloc] initWithSize:largerSize];
+
+    [largerImage lockFocus];
+    [original drawInRect:NSMakeRect(0, 0, largerSize.width, largerSize.height)
+               fromRect:NSZeroRect
+              operation:NSCompositingOperationSourceOver
+               fraction:1.0];
+    [largerImage unlockFocus];
+
+    largerImage.template = original.template;
+    return largerImage;
 }
 
 @end
