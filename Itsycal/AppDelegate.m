@@ -33,12 +33,12 @@
         kPinItsycal:           @(NO),
         kShowWeeks:            @(NO),
         kHighlightedDOWs:      @0,
-        kShowEventDays:        @7,
+        kShowEventDays:        @0,
         kWeekStartDOW:         @(weekStartDOW), // Sun=0, Mon=1,... (MoCalendar.h)
         kShowMonthInIcon:      @(NO),
         kShowDayOfWeekInIcon:  @(NO),
-        kShowEventDots:        @(YES),
-        kUseColoredDots:       @(YES),
+        kShowEventDots:        @(NO),
+        kUseColoredDots:       @(NO),
         kThemePreference:      @0, // System=0, Light=1, Dark=2
         kHideIcon:             @(NO),
         kShowLocation:         @(NO),
