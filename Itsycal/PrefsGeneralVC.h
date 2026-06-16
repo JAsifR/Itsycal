@@ -7,8 +7,9 @@
 
 @class EventCenter;
 
-@interface PrefsGeneralVC : NSViewController <NSTableViewDataSource, NSTableViewDelegate>
+@interface PrefsGeneralVC : NSViewController
 
+// Kept for compatibility with the existing controller setup. Calendar access is disabled.
 @property (nonatomic, weak) EventCenter *ec;
 
 @end
