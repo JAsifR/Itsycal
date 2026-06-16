@@ -283,12 +283,6 @@
             method_exchangeImplementations(clickOriginal, clickReplacement);
         }
 
-        Method iconOriginal = class_getInstanceMethod(self, NSSelectorFromString(@"iconImageForText:"));
-        Method iconReplacement = class_getInstanceMethod(self, @selector(settingsOnly_iconImageForText:));
-        if (iconOriginal && iconReplacement) {
-            method_exchangeImplementations(iconOriginal, iconReplacement);
-        }
-
         Method updateOriginal = class_getInstanceMethod(self, NSSelectorFromString(@"updateMenubarIcon"));
         Method updateReplacement = class_getInstanceMethod(self, @selector(settingsOnly_updateMenubarIcon));
         if (updateOriginal && updateReplacement) {
@@ -333,7 +327,7 @@
     if (!button) return;
 
     NSFont *currentFont = button.font ?: [NSFont menuBarFontOfSize:0];
-    CGFloat largerSize = MAX(currentFont.pointSize + 2.0, 15.0);
+    CGFloat largerSize = currentFont.pointSize + 1.0;
     NSFont *largerFont = [NSFont systemFontOfSize:largerSize weight:NSFontWeightRegular];
     button.font = largerFont;
 
@@ -350,26 +344,6 @@
         [self performSelector:adjustWidth withObject:nil];
 #pragma clang diagnostic pop
     }
-}
-
-- (NSImage *)settingsOnly_iconImageForText:(NSString *)text
-{
-    NSImage *original = [self settingsOnly_iconImageForText:text];
-    if (!original) return nil;
-
-    NSSize originalSize = original.size;
-    NSSize largerSize = NSMakeSize(originalSize.width + 4.0, originalSize.height + 2.0);
-    NSImage *largerImage = [[NSImage alloc] initWithSize:largerSize];
-
-    [largerImage lockFocus];
-    [original drawInRect:NSMakeRect(0, 0, largerSize.width, largerSize.height)
-               fromRect:NSZeroRect
-              operation:NSCompositingOperationSourceOver
-               fraction:1.0];
-    [largerImage unlockFocus];
-
-    largerImage.template = original.template;
-    return largerImage;
 }
 
 @end
