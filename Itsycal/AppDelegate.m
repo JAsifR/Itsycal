@@ -277,7 +277,7 @@
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        Method clickOriginal = class_getInstanceMethod(self, @selector(statusItemClicked:));
+        Method clickOriginal = class_getInstanceMethod(self, NSSelectorFromString(@"statusItemClicked:"));
         Method clickReplacement = class_getInstanceMethod(self, @selector(settingsOnly_statusItemClicked:));
         if (clickOriginal && clickReplacement) {
             method_exchangeImplementations(clickOriginal, clickReplacement);
@@ -326,9 +326,8 @@
     NSStatusBarButton *button = statusItem.button;
     if (!button) return;
 
-    NSFont *currentFont = button.font ?: [NSFont menuBarFontOfSize:0];
-    CGFloat largerSize = currentFont.pointSize + 1.0;
-    NSFont *largerFont = [NSFont systemFontOfSize:largerSize weight:NSFontWeightRegular];
+    CGFloat fixedSize = [NSFont menuBarFontOfSize:0].pointSize + 1.0;
+    NSFont *largerFont = [NSFont systemFontOfSize:fixedSize weight:NSFontWeightRegular];
     button.font = largerFont;
 
     if (button.attributedTitle.length > 0) {
