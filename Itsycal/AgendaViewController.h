@@ -2,19 +2,17 @@
 //  AgendaViewController.h
 //  Itsycal
 //
-//  Created by Sanjay Madan on 2/18/15.
-//  Copyright (c) 2015 mowglii.com. All rights reserved.
+//  Agenda/event list UI disabled in this fork.
 //
 
 #import <Cocoa/Cocoa.h>
-#import "MoTableView.h"
 
 @protocol AgendaDelegate;
 
-@interface AgendaViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, MoTableViewDelegate, NSMenuDelegate>
+@interface AgendaViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate>
 
 @property (nonatomic, weak) NSCalendar *nsCal;
-@property (nonatomic) MoTableView *tv;
+@property (nonatomic) NSTableView *tv;
 @property (nonatomic) NSArray *events;
 @property (nonatomic, weak) id<AgendaDelegate> delegate;
 @property (nonatomic) BOOL showLocation;
