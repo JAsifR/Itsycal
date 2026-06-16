@@ -1,0 +1,8 @@
+// Local.xcconfig
+// Local build settings for JAsifR/Itsycal.
+// This file is required by the Xcode project.
+
+DEVELOPMENT_TEAM =
+CODE_SIGN_IDENTITY = -
+CODE_SIGN_STYLE = Automatic
+ENABLE_HARDENED_RUNTIME = NO
