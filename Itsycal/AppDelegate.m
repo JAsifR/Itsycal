@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 mowglii.com. All rights reserved.
 //
 
+#import <objc/runtime.h>
 #import "AppDelegate.h"
 #import "Itsycal.h"
 #import "ItsycalWindow.h"
@@ -265,6 +266,42 @@
     [defaults removeObjectForKey:@"UseOutlineIcon"];
     if (useOutlineIcon) {
         [defaults setInteger:1 forKey:kMenuBarIconType];
+    }
+}
+
+@end
+
+@implementation ViewController (SettingsOnlyMenuBar)
+
++ (void)load
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Method original = class_getInstanceMethod(self, @selector(statusItemClicked:));
+        Method replacement = class_getInstanceMethod(self, @selector(settingsOnly_statusItemClicked:));
+        if (original && replacement) {
+            method_exchangeImplementations(original, replacement);
+        }
+    });
+}
+
+- (void)settingsOnly_statusItemClicked:(id)sender
+{
+    SEL hideWindow = NSSelectorFromString(@"hideItsycalWindow");
+    SEL showPrefs = NSSelectorFromString(@"showPrefs:");
+
+    if ([self respondsToSelector:hideWindow]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [self performSelector:hideWindow withObject:nil];
+#pragma clang diagnostic pop
+    }
+
+    if ([self respondsToSelector:showPrefs]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [self performSelector:showPrefs withObject:sender];
+#pragma clang diagnostic pop
     }
 }
 
