@@ -326,7 +326,7 @@
     NSStatusBarButton *button = statusItem.button;
     if (!button) return;
 
-    CGFloat fixedSize = [NSFont menuBarFontOfSize:0].pointSize + 1.5;
+    CGFloat fixedSize = [NSFont menuBarFontOfSize:0].pointSize + 2.0;
     NSFont *largerFont = [NSFont systemFontOfSize:fixedSize weight:NSFontWeightRegular];
     button.font = largerFont;
 
